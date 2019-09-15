@@ -47,37 +47,37 @@ services:
       timeout: 10s
       retries: 5
 
-  # logstash:
-  #   build:
-  #     context: logstash/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - type: bind
-  #       source: ./logstash/config/logstash.yml
-  #       target: /usr/share/logstash/config/logstash.yml
-  #       read_only: true
-  #     - type: bind
-  #       source: ./logstash/pipeline
-  #       target: /usr/share/logstash/pipeline
-  #       # read_only: true
-  #     - type: volume
-  #       source: certs
-  #       target: $CERTS_DIR
-  #       read_only: true
-  #   ports:
-  #     - "5000:5000"
-  #     - "9600:9600"
-  #     - "5514:5514/udp"
-  #     - "5044:5044/udp"
-  #     - "5044:5044/tcp"
-  #   environment:
-  #     - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
-  #     - xpack.monitoring.elasticsearch.ssl.certificate_authority=$CERTS_DIR/ca/ca.crt
-  #   networks:
-  #     - elk
-  #   depends_on:
-  #     - es01
+  logstash:
+    build:
+      context: logstash/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        # read_only: true
+      - type: bind
+        source: ./logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        # read_only: true
+      - type: volume
+        source: certs
+        target: /certs
+        # read_only: true
+    ports:
+      - "5000:5000"
+      - "9600:9600"
+      - "5514:5514/udp"
+      - "5044:5044/udp"
+      - "5044:5044/tcp"
+    environment:
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+      # - xpack.monitoring.elasticsearch.ssl.certificate_authority=/certs/ca/ca.crt
+    networks:
+      - elk
+    depends_on:
+      - es01
 
   kibana:
     build:
