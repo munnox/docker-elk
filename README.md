@@ -4,6 +4,8 @@ NOTICE:
 
 Combined the previous REPO with [this](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-tls-docker.html) tutorial and other info from this [tutorial](https://www.elastic.co/blog/configuring-ssl-tls-and-https-to-secure-elasticsearch-kibana-beats-and-logstash#enable-ts-logstash) along with [logstash](https://www.elastic.co/guide/en/beats/filebeat/current/configuring-ssl-logstash.html) and [kibana](https://www.elastic.co/guide/en/kibana/current/configuring-tls.html)
 
+Testing `docker run -it -v rames_certs:/certs --rm --name tests ubuntu:18.04 bash`
+
 [![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Elastic Stack version](https://img.shields.io/badge/ELK-7.3.1-blue.svg?style=flat)](https://github.com/deviantony/docker-elk/issues/428)
 [![Build Status](https://api.travis-ci.org/deviantony/docker-elk.svg?branch=master)](https://travis-ci.org/deviantony/docker-elk)
