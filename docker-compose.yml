@@ -1,7 +1,8 @@
 version: '3.2'
 
 services:
-  elasticsearch:
+  es01:
+    # container_name: es01
     build:
       context: elasticsearch/
       args:
@@ -11,17 +12,40 @@ services:
         source: ./elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
+      - type: bind
+        source: certs
+        target: $CERTS_DIR
+        read_only: true
       - type: volume
-        source: elasticsearch
+        source: data01
         target: /usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: changeme
+      - node.name=es00
+      # - discovery.seed_hosts=es00
+      # - cluster.initial_master_nodes=es00
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+      - xpack.license.self_generated.type=basic 
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=$CERTS_DIR/es01/es01.key
+      - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.http.ssl.certificate=$CERTS_DIR/es01/es01.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate 
+      - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.transport.ssl.certificate=$CERTS_DIR/es01/es01.crt
+      - xpack.security.transport.ssl.key=$CERTS_DIR/es01/es01.key
     networks:
       - elk
+    healthcheck:
+      test: curl --cacert $CERTS_DIR/ca/ca.crt -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   logstash:
     build:
@@ -40,12 +64,16 @@ services:
     ports:
       - "5000:5000"
       - "9600:9600"
+      - "5514:5514/udp"
+      - "5044:5044/udp"
+      - "5044:5044/tcp"
     environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+      - xpack.monitoring.elasticsearch.ssl.certificate_authority=$CERTS_DIR/ca/ca.crt
     networks:
       - elk
     depends_on:
-      - elasticsearch
+      - es01
 
   kibana:
     build:
@@ -57,16 +85,24 @@ services:
         source: ./kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
+      - type: bind
+        source: certs
+        target: $CERTS_DIR
+        read_only: true
     ports:
       - "5601:5601"
+    environment:
+      - elasticsearch.ssl.certificateAuthorities=$CERTS_DIR/ca/ca.crt
+      - server.ssl.enabled=true
+      - server.ssl.key=$CERTS_DIR/kibana/kibana.key
+      - server.ssl.certificate=$CERTS_DIR/kibana/kibana.crt
     networks:
       - elk
     depends_on:
-      - elasticsearch
+      - es01
 
 networks:
   elk:
     driver: bridge
 
-volumes:
-  elasticsearch:
+volumes: {"certs", "data01"}
