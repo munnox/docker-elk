@@ -2,11 +2,12 @@ version: '3.2'
 
 services:
   es01:
-    # container_name: es01
+    container_name: es01
     build:
       context: elasticsearch/
       args:
         ELK_VERSION: $ELK_VERSION
+    restart: $RESTART
     volumes:
       - type: bind
         source: ./elasticsearch/config/elasticsearch.yml
@@ -23,9 +24,9 @@ services:
       - "9200:9200"
       - "9300:9300"
     environment:
-      - node.name=es00
-      # - discovery.seed_hosts=es00
-      # - cluster.initial_master_nodes=es00
+      - node.name=es01
+      - discovery.seed_hosts=es00,es02
+      - cluster.initial_master_nodes=es01,es02
       - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
       - xpack.license.self_generated.type=basic 
@@ -46,12 +47,59 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+  es02:
+    container_name: es02
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: $RESTART
+    volumes:
+      - type: bind
+        source: ./elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: certs
+        target: $CERTS_DIR
+        read_only: true
+      # - type: volume
+      #   source: data02
+      #   target: /usr/share/elasticsearch/data
+    # ports:
+    #   - "9200:9200"
+    #   - "9300:9300"
+    environment:
+      - node.name=es02
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
+      - xpack.license.self_generated.type=basic 
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=$CERTS_DIR/es02/es02.key
+      - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.http.ssl.certificate=$CERTS_DIR/es02/es02.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate 
+      - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.transport.ssl.certificate=$CERTS_DIR/es02/es02.crt
+      - xpack.security.transport.ssl.key=$CERTS_DIR/es02/es02.key
+    networks:
+      - elk
+    healthcheck:
+      test: curl --cacert $CERTS_DIR/ca/ca.crt -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   logstash:
     build:
       context: logstash/
       args:
         ELK_VERSION: $ELK_VERSION
+    restart: $RESTART
     volumes:
       - type: bind
         source: ./logstash/config/logstash.yml
@@ -84,6 +132,7 @@ services:
       context: kibana/
       args:
         ELK_VERSION: $ELK_VERSION
+    restart: $RESTART
     volumes:
       - type: bind
         source: ./kibana/config/kibana.yml
