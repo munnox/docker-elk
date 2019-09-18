@@ -39,7 +39,7 @@ services:
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['certs:/certs', '.:/usr/share/elasticsearch/config/certificates']
+    volumes: ['certs:/certs', '.:/local/']
   edit_certs:
     container_name: edit_certs
     build:
@@ -48,12 +48,12 @@ services:
         ELK_VERSION: $ELK_VERSION
     command: >
       bash -c '
-        yum install -y -q -e 0 openssl vim;
+        yum install -y -q -e 0 openssl vim git rsync;
         bash
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['certs:/certs', '.:/usr/share/elasticsearch/config/certificates']
+    volumes: ['certs:/certs', '.:/local/']
   copy_out_all:
     container_name: copy_out_certs
     build:
@@ -73,10 +73,9 @@ services:
     command: >
       bash -c "
         yum install rsync;
-        rsync -a --prune-empty-dirs --include '*/' --include '*.cer' --exclude '*' /certs/ /out_certs/
+        rsync -a --prune-empty-dirs --include '*/' --include '*.crt' --exclude '*' /certs/ /out_certs/
       "
     user: "0"
-    working_dir: /usr/share/elasticsearch
     volumes: ['certs:/certs', './certs/:/out_certs/']
   copy_out_reqs:
     container_name: copy_out_reqs
@@ -90,7 +89,6 @@ services:
         rsync -a --prune-empty-dirs --include '*/' --include '*.csr' --exclude '*' /certs/ /out_certs/
       "
     user: "0"
-    working_dir: /usr/share/elasticsearch
     volumes: ['certs:/certs', './local_certs/:/out_certs/']
   copy_in_certs:
     container_name: copy_certs
@@ -101,10 +99,9 @@ services:
     command: >
       bash -c "
         yum install rsync;
-        rsync -a --prune-empty-dirs --include '*/' --include '*.cer' --exclude '*' /in_certs/ /certs/
+        rsync -a --prune-empty-dirs --include '*/' --include '*.crt' --exclude '*' /in_certs/ /certs/
       "
     user: "0"
-    working_dir: /usr/share/elasticsearch
     volumes: ['certs:/certs', './local_certs/:/in_certs/']
 
 

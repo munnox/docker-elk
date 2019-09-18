@@ -2,7 +2,7 @@ version: '3.2'
 
 services:
   es01:
-    container_name: es01
+    # container_name: es01
     build:
       context: elasticsearch/
       args:
@@ -17,15 +17,15 @@ services:
         source: certs
         target: $CERTS_DIR
         read_only: true
-      # - type: volume
-      #   source: data01
-      #   target: /usr/share/elasticsearch/data
+      - type: volume
+        source: data01
+        target: /usr/share/elasticsearch/data
     ports:
       - "9200:9200"
       - "9300:9300"
     environment:
       - node.name=es01
-      - discovery.seed_hosts=es00,es02
+      - discovery.seed_hosts=es01,es02
       - cluster.initial_master_nodes=es01,es02
       - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
@@ -63,9 +63,9 @@ services:
         source: certs
         target: $CERTS_DIR
         read_only: true
-      # - type: volume
-      #   source: data02
-      #   target: /usr/share/elasticsearch/data
+      - type: volume
+        source: data02
+        target: /usr/share/elasticsearch/data
     # ports:
     #   - "9200:9200"
     #   - "9300:9300"
@@ -163,4 +163,4 @@ networks:
   elk:
     driver: bridge
 
-volumes: {"certs"} #, "data01"}
+volumes: {"certs", "data01", "date02"}
