@@ -163,4 +163,4 @@ networks:
   elk:
     driver: bridge
 
-volumes: {"certs", "data01", "date02"}
+volumes: {"certs", "data01", "data02"}
