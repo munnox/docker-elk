@@ -48,7 +48,7 @@ services:
       timeout: 10s
       retries: 5
   es02:
-    container_name: es02
+    # container_name: es02
     build:
       context: elasticsearch/
       args:
