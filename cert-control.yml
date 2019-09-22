@@ -39,7 +39,7 @@ services:
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['certs:/certs', '.:/local/']
+    volumes: ['certs:/certs', '.:/usr/share/elasticsearch/config/certificates']
   edit_certs:
     container_name: edit_certs
     build:
