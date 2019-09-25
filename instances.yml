@@ -3,26 +3,38 @@ instances:
     dns:
       - es01 
       - localhost
+      - log-server-01
+      - log-server-01.home.lan
     ip:
+      - 10.20.30.85
       - 127.0.0.1
 
   - name: es02
     dns:
       - es02
       - localhost
+      - log-server-01
+      - log-server-01.home.lan
     ip:
+      - 10.20.30.86
       - 127.0.0.1
 
   - name: logstash
     dns:
       - logstash
       - localhost
+      - log-server-01
+      - log-server-01.home.lan
     ip:
+      - 10.20.30.85
       - 127.0.0.1
 
   - name: kibana
     dns:
       - kibana 
       - localhost
+      - log-server-01
+      - log-server-01.home.lan
     ip:
+      - 10.20.30.85
       - 127.0.0.1
