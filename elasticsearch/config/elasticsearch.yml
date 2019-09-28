@@ -5,6 +5,7 @@
 cluster.name: "node01"
 network.host: 0.0.0.0
 
+http.max_content_length: 1.9gb # Must be less than 2gb
 ## Use single node discovery in order to disable production mode and avoid bootstrap checks
 ## see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
 #
