@@ -1,0 +1,40 @@
+# Inspired by:
+# `curl -L -O https://raw.githubusercontent.com/elastic/beats/7.4/deploy/docker/filebeat.docker.yml`
+
+filebeat.config:
+  modules:
+    paths: ${path.config}/modules.d/*.yml
+    reload.enabled: false
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
+# output.elasticsearch.index: "customname-%{[agent.version]}-%{+yyyy.MM.dd}"
+# setup.template.name: "customname"
+# setup.template.pattern: "customname-*"
+
+processors:
+  - add_cloud_metadata: ~
+
+# output.elasticsearch:
+#   hosts: ["https://es01:9200"]
+#   username: 'elastic'
+#   password: 'PleaseChangeMe'
+#   ssl.certificate_authorities: [ '/certs/ca/ca.crt' ]
+
+output.logstash:
+  hosts: ["esa"]
+  ssl.certificate_authorities: ["/certs/ca/ca.crt"]
+  ssl.certifcate: "/certs/logstash_client/logstash_client.crt"
+  ssl.key: "/certs/logstash_client/logstash_client.key"
+
+setup.kibana:
+  host: "https://esa:5601"
+  ssl.enabled: true
+  username: "elastic"
+  password: "PleaseChangeMe"
+  ssl.certificate_authorities: ["/certs/ca/ca.crt"]
+
+

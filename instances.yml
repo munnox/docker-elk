@@ -1,40 +1,47 @@
 instances:
-  - name: es01
+  - name: log-server-01
     dns:
-      - es01 
+      - esa
+      - esb
+      - esc
       - localhost
-      - log-server-01
-      - log-server-01.home.lan
     ip:
-      - 10.20.30.85
       - 127.0.0.1
 
-  - name: es02
+  - name: log-server-02
     dns:
-      - es02
+      - esa
+      - esb
+      - esc
       - localhost
-      - log-server-01
-      - log-server-01.home.lan
     ip:
-      - 10.20.30.86
       - 127.0.0.1
 
   - name: logstash
     dns:
       - logstash
       - localhost
-      - log-server-01
-      - log-server-01.home.lan
     ip:
-      - 10.20.30.85
       - 127.0.0.1
+
+  - name: filebeat
+    dns:
+      - filebeat
+      - localhost
+    ip:
+      - 127.0.0.1
+
+  - name: logstash_client
+    dns:
+      - localhost
+      - "*.home.lan"
+    ip:
+      - 127.0.0.1
+
 
   - name: kibana
     dns:
       - kibana 
       - localhost
-      - log-server-01
-      - log-server-01.home.lan
     ip:
-      - 10.20.30.85
       - 127.0.0.1

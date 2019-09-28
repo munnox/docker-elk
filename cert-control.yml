@@ -20,10 +20,11 @@ services:
           # openssl pkcs8 -in /certs/logstash_client/logstash.key -topk8 -nocrypt /certs/logstash/logstash_client.p8
         fi;
         chown -R 1000:0 /certs
+        cp -rf /certs/* /local_certs/
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', '.:/local/']
+    volumes: ['certs:/certs', './local_certs/:/local_certs/', '.:/local/']
   create_reqs:
     container_name: create_reqs
     build:
@@ -39,10 +40,11 @@ services:
           unzip /certs/bundle.zip -d /certs; 
         fi;
         chown -R 1000:0 /certs
+        cp -rf /certs/* /local_certs/
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', '.:/local/']
+    volumes: ['./certs:/certs', './local_certs/:/local_certs/', '.:/local/']
   recreate_certs:
     container_name: create_certs
     build:
@@ -59,10 +61,11 @@ services:
           unzip /certs/bundle.zip -d /certs; 
         fi;
         chown -R 1000:0 /certs
+        cp -rf /certs/* /local_certs/
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', '.:/local/']
+    volumes: ['./certs:/certs', './local_certs/:/local_certs/', '.:/local/']
   edit_certs:
     container_name: edit_certs
     build:
@@ -76,14 +79,17 @@ services:
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', '.:/local/']
+    volumes: ['./certs:/certs', './local_certs/:/local_certs/', '.:/local/']
   copy_out_all:
     container_name: copy_out_certs
     build:
       context: elasticsearch/
       args:
         ELK_VERSION: $ELK_VERSION
-    command: cp -r /certs/ /out_certs/
+    command: >
+      bash -c '
+        cp -r /certs/* /out_certs/;
+      '
     user: "0"
     working_dir: /usr/share/elasticsearch
     volumes: ['./certs:/certs', './local_certs/:/out_certs/']
@@ -128,4 +134,4 @@ services:
     volumes: ['./certs:/certs', './local_certs/:/in_certs/']
 
 
-# volumes: {"certs"}
+volumes: {"certs"}

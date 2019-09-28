@@ -159,8 +159,8 @@ services:
         source: ./logstash/pipeline
         target: /usr/share/logstash/pipeline
         # read_only: true
-      - type: bind
-        source: ./certs
+      - type: volume
+        source: certs
         target: /certs
         # read_only: true
     ports:
@@ -188,10 +188,10 @@ services:
         source: ./kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
-      - type: bind
-        source: ./certs
+      - type: volume
+        source: certs
         target: /usr/share/kibana/config/certs/
-        # read_only: true
+        read_only: true
     ports:
       - "5601:5601"
     # environment:
@@ -217,7 +217,7 @@ services:
     restart: $RESTART
     volumes:
       - type: bind
-        source: ./filebeat/config/firebeat.yml
+        source: ./filebeat/config/filebeat.yml
         target: /usr/share/filebeat/filebeat.yml
         read_only: true
       # - type: bind
@@ -232,16 +232,12 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
         read_only: true
-      - type: bind
-        source: ./certs
+      - type: volume
+        source: certs
         target: /certs
         # read_only: true
-    # ports:
-    #   - "5000:5000"
-    #   - "9600:9600"
-    #   - "5514:5514/udp"
-    #   - "5044:5044/udp"
-    #   - "5044:5044/tcp"
+    ports:
+      - "5515:5514/udp"
     command: "filebeat -e -strict.perms=false"
     environment:
       - "LS_JAVA_OPTS=-Xmx256m -Xms256m"

@@ -4,7 +4,18 @@ NOTICE:
 
 Combined the previous REPO with [this](https://www.elastic.co/guide/en/elasticsearch/reference/current/configuring-tls-docker.html) tutorial and other info from this [tutorial](https://www.elastic.co/blog/configuring-ssl-tls-and-https-to-secure-elasticsearch-kibana-beats-and-logstash#enable-ts-logstash) along with [Logstash](https://www.elastic.co/guide/en/logstash/7.3/ls-security.html), [FileBeat to logstash](https://www.elastic.co/guide/en/beats/filebeat/current/configuring-ssl-logstash.html) and [kibana](https://www.elastic.co/guide/en/kibana/current/configuring-tls.html)
 
-Testing `docker run -it -v rames_certs:/certs --rm --name tests ubuntu:18.04 bash`
+Setup 
+
+```
+docker-compose -f cert-control.yml run --rm create_certs
+docker-compose up -d esa kibana
+```
+
+Testing logstash
+
+```
+docker-compose up logstash
+```
 
 [![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Elastic Stack version](https://img.shields.io/badge/ELK-7.3.1-blue.svg?style=flat)](https://github.com/deviantony/docker-elk/issues/428)

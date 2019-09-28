@@ -6,7 +6,7 @@ server.name: kibana
 server.host: "0"
 
 server.maxPayloadBytes: 2040109465 # 2040109465.6 1.9GB 1.9*2**30
-elasticsearch.hosts: [ "https://log-server-01.home.lan:9200" ]
+elasticsearch.hosts: [ "https://esa:9200" ]
 elasticsearch.ssl.certificateAuthorities: [ "/usr/share/kibana/config/certs/ca/ca.crt" ]
 
 
