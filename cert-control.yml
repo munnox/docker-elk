@@ -14,14 +14,16 @@ services:
       bash -c '
         yum install -y -q -e 0 unzip;
         if [[ ! -f /certs/bundle.zip ]]; then
-          bin/elasticsearch-certutil cert --silent --pem --in config/certificates/instances.yml -out /certs/bundle.zip;
-          unzip /certs/bundle.zip -d /certs; 
+          bin/elasticsearch-certutil cert --silent --pem --keep-ca-key --in /local/instances.yml -out /certs/bundle.zip;
+          unzip /certs/bundle.zip -d /certs;
+          openssl pkcs8 -in /certs/logstash/logstash.key -topk8 -nocrypt /certs/logstash/logstash.p8
+          # openssl pkcs8 -in /certs/logstash_client/logstash.key -topk8 -nocrypt /certs/logstash/logstash_client.p8
         fi;
         chown -R 1000:0 /certs
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', '.:/usr/share/elasticsearch/config/certificates']
+    volumes: ['./certs:/certs', '.:/local/']
   create_reqs:
     container_name: create_reqs
     build:
@@ -31,15 +33,36 @@ services:
     command: >
       bash -c '
         yum install -y -q -e 0 unzip;
+        rm -rf /certs/
         if [[ ! -f /certs/bundle.zip ]]; then
-          bin/elasticsearch-certutil csr --silent --in config/certificates/instances.yml -out /certs/bundle.zip;
+          bin/elasticsearch-certutil csr --silent --in /local/instances.yml -out /certs/bundle.zip;
           unzip /certs/bundle.zip -d /certs; 
         fi;
         chown -R 1000:0 /certs
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', '.:/usr/share/elasticsearch/config/certificates']
+    volumes: ['./certs:/certs', '.:/local/']
+  recreate_certs:
+    container_name: create_certs
+    build:
+      context: elasticsearch/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    command: >
+      bash -c '
+        rm -rf /certs/bundle.zip
+        yum install -y -q -e 0 unzip;
+        if [[ ! -f /certs/bundle.zip ]]; then
+          bin/elasticsearch-certutil cert --silent --pem --ca-cert /certs/ca/ca/crt --ca-key /certs/ca/ca.key --in /local/instances.yml -out /certs/bundle.zip;
+
+          unzip /certs/bundle.zip -d /certs; 
+        fi;
+        chown -R 1000:0 /certs
+      '
+    user: "0"
+    working_dir: /usr/share/elasticsearch
+    volumes: ['./certs:/certs', '.:/local/']
   edit_certs:
     container_name: edit_certs
     build:

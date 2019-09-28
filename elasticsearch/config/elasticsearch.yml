@@ -4,12 +4,16 @@
 #
 cluster.name: "node01"
 network.host: 0.0.0.0
+network.publish_host: 192.168.1.2
 
 http.max_content_length: 1.9gb # Must be less than 2gb
 ## Use single node discovery in order to disable production mode and avoid bootstrap checks
 ## see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
 #
 # discovery.type: single-node
+
+# Backup repo for _snapshots
+path.repo: ["/backup"]
 
 ## X-Pack settings
 ## see https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-xpack.html

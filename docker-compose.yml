@@ -1,7 +1,7 @@
 version: '3.2'
 
 services:
-  es01:
+  esa:
     # container_name: es01
     build:
       context: elasticsearch/
@@ -13,13 +13,16 @@ services:
         source: ./elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
-      - type: bind
-        source: ./certs
+      - type: volume
+        source: certs
         target: $CERTS_DIR
-        # read_only: true
+        read_only: true
       - type: volume
         source: data01
         target: /usr/share/elasticsearch/data
+      - type: bind
+        source: /mnt/nfs/elastic/backup/
+        target: /backup
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -27,6 +30,7 @@ services:
       - node.name=log-server-01a
       - discovery.seed_hosts=log-server-01.home.lan
       - cluster.initial_master_nodes=log-server-01a
+      #- cluster.initial_master_nodes=192.168.1.2:9300
       - network.publish_host=10.20.30.85
       - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
@@ -48,7 +52,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-  es02:
+  esb:
     # container_name: es02
     build:
       context: elasticsearch/
@@ -60,20 +64,22 @@ services:
         source: ./elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
-      - type: bind
-        source: ./certs/
+      - type: volume
+        source: certs
         target: $CERTS_DIR
         read_only: true
       - type: volume
         source: data02
         target: /usr/share/elasticsearch/data
+      - type: bind
+        source: /mnt/nfs/elastic/backup/
+        target: /backup
     ports:
       - "9201:9200"
       - "9301:9300"
     environment:
       - node.name=log-server-01b
       - discovery.seed_hosts=log-server-01.home.lan
-      #- cluster.initial_master_nodes=10.20.30.85:9300
       - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
       - ELASTIC_PASSWORD=$ELASTIC_PASSWORD
       - xpack.license.self_generated.type=basic
@@ -92,7 +98,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-  es03:
+  esc:
     # container_name: es02
     build:
       context: elasticsearch/
@@ -104,22 +110,23 @@ services:
         source: ./elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
-      - type: bind
-        source: ./certs/
+      - type: volume
+        source: certs
         target: $CERTS_DIR
         read_only: true
-      # - type: volume
-      #   source: data02
-      #   target: /usr/share/elasticsearch/data
+      - type: volume
+        source: data02
+        target: /usr/share/elasticsearch/data
+      - type: bind
+        source: /mnt/nfs/elastic/backup/
+        target: /backup
     ports:
       - "9202:9200"
       - "9302:9300"
     environment:
       - node.name=log-server-01c
       - discovery.seed_hosts=log-server-01.home.lan
-      #- cluster.initial_master_nodes=10.20.30.85:9300
       - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
-      #- ELASTIC_PASSWORD=$ELASTIC_PASSWORD_1
       - xpack.license.self_generated.type=basic
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
@@ -168,7 +175,7 @@ services:
     # networks:
     #   - elk
     depends_on:
-      - es01
+      - esa
 
   kibana:
     build:
@@ -195,15 +202,57 @@ services:
     # networks:
     #   - elk
     depends_on:
-      - es01
+      - esa
     # healthcheck:
     #     test: curl --cacert /certs/ca/ca.crt --user elastic:$ELASTIC_PASSWORD -s https://es01:9200 >/test.log; if [[ $$? == 481 ]]; then echo 0; else echo 1; fi
     #     interval: 30s
     #     timeout: 10s
     #     retries: 5
 
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    restart: $RESTART
+    volumes:
+      - type: bind
+        source: ./filebeat/config/firebeat.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+      # - type: bind
+      #   source: ./filebeat/module.d/
+      #   target: /usr/share/module.d/
+      #   # read_only: true
+      - type: bind
+        source: /var/lib/docker/containers
+        target: /var/lib/docker/containers
+        read_only: true
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+        read_only: true
+      - type: bind
+        source: ./certs
+        target: /certs
+        # read_only: true
+    # ports:
+    #   - "5000:5000"
+    #   - "9600:9600"
+    #   - "5514:5514/udp"
+    #   - "5044:5044/udp"
+    #   - "5044:5044/tcp"
+    command: "filebeat -e -strict.perms=false"
+    environment:
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+      # - xpack.monitoring.elasticsearch.ssl.certificate_authority=/certs/ca/ca.crt
+    # networks:
+    #   - elk
+    depends_on:
+      - esa
+
 # networks:
 #   elk:
 #     driver: bridge
 
-volumes: {"data01", "data02", "data03"}
+volumes: {"certs", "data01", "data02", "data03"}
