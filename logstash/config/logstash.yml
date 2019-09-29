@@ -2,13 +2,20 @@
 ## Default Logstash configuration from Logstash base image.
 ## https://github.com/elastic/logstash/blob/master/docker/data/logstash/config/logstash-full.yml
 #
+# With reference from https://www.elastic.co/guide/en/logstash/current/logstash-settings-file.html
+#
+
 http.host: "0.0.0.0"
 
-xpack.monitoring.elasticsearch.hosts: [ "https://esa:9200" ]
-xpack.monitoring.elasticsearch.ssl.certificate_authority: /certs/ca/ca.crt
+node.name: "node_${LS_NODE_NAME:maindev}"
+
+# usefully reload the pipeline. This doesn't work with stdin input plugin
+config.reload.automatic: true
 
 ## X-Pack security credentials
 #
 xpack.monitoring.enabled: true
+xpack.monitoring.elasticsearch.hosts: [ "https://esa:9200" ]
+xpack.monitoring.elasticsearch.ssl.certificate_authority: /certs/ca/ca.crt
 xpack.monitoring.elasticsearch.username: elastic
 xpack.monitoring.elasticsearch.password: PleaseChangeMe

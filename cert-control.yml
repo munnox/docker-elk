@@ -16,11 +16,11 @@ services:
         if [[ ! -f /certs/bundle.zip ]]; then
           bin/elasticsearch-certutil cert --silent --pem --keep-ca-key --in /local/instances.yml -out /certs/bundle.zip;
           unzip /certs/bundle.zip -d /certs;
-          openssl pkcs8 -in /certs/logstash/logstash.key -topk8 -nocrypt /certs/logstash/logstash.p8
+          openssl pkcs8 -in /certs/logstash/logstash.key -topk8 -nocrypt -out /certs/logstash/logstash.p8;
           # openssl pkcs8 -in /certs/logstash_client/logstash.key -topk8 -nocrypt /certs/logstash/logstash_client.p8
         fi;
         chown -R 1000:0 /certs
-        cp -rf /certs/* /local_certs/
+        cp -rvf /certs/* /local_certs/
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
