@@ -9,12 +9,27 @@ Setup
 ```
 docker-compose -f cert-control.yml run --rm create_certs
 docker-compose up -d esa kibana
+docker-compose exec esa bin/elasticsearch-setup-passwords auto -u "https://127.0.0.1:9200" -E "xpack.security.http.ssl.certificate_authorities=certificates/ca/ca.crt" > users.log
 ```
 
 Testing logstash
 
 ```
 docker-compose up logstash
+```
+
+Example
+
+```
+filebeat export template > filebeat.template.json
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/filebeat-7.4.0 -d@filebeat.template.json
+curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_template/filebeat-7.4.0 -d@filebeat.template.json
+
+```
+
+```
+PS > .\filebeat.exe export template --es.version 7.4.0 | Out-File -Encoding UTF8 filebeat.template.json
+PS > Invoke-RestMethod -Method Put -ContentType "application/json" -InFile filebeat.template.json -Uri http://localhost:9200/_template/filebeat-7.4.0
 ```
 
 [![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

@@ -44,7 +44,7 @@ services:
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', './local_certs/:/local_certs/', '.:/local/']
+    volumes: ['certs:/certs', './local_certs/:/local_certs/', '.:/local/']
   recreate_certs:
     container_name: create_certs
     build:
@@ -56,7 +56,7 @@ services:
         rm -rf /certs/bundle.zip
         yum install -y -q -e 0 unzip;
         if [[ ! -f /certs/bundle.zip ]]; then
-          bin/elasticsearch-certutil cert --silent --pem --ca-cert /certs/ca/ca/crt --ca-key /certs/ca/ca.key --in /local/instances.yml -out /certs/bundle.zip;
+          bin/elasticsearch-certutil cert --silent --pem --ca-cert /certs/ca/ca.crt --ca-key /certs/ca/ca.key --in /local/instances.yml -out /certs/bundle.zip;
 
           unzip /certs/bundle.zip -d /certs; 
         fi;
@@ -65,7 +65,7 @@ services:
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', './local_certs/:/local_certs/', '.:/local/']
+    volumes: ['certs:/certs', './local_certs/:/local_certs/', '.:/local/']
   edit_certs:
     container_name: edit_certs
     build:
@@ -79,59 +79,7 @@ services:
       '
     user: "0"
     working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', './local_certs/:/local_certs/', '.:/local/']
-  copy_out_all:
-    container_name: copy_out_certs
-    build:
-      context: elasticsearch/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    command: >
-      bash -c '
-        cp -r /certs/* /out_certs/;
-      '
-    user: "0"
-    working_dir: /usr/share/elasticsearch
-    volumes: ['./certs:/certs', './local_certs/:/out_certs/']
-  copy_out_certs:
-    container_name: copy_out_certs
-    build:
-      context: elasticsearch/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    command: >
-      bash -c "
-        yum install rsync;
-        rsync -a --prune-empty-dirs --include '*/' --include '*.crt' --exclude '*' /certs/ /out_certs/
-      "
-    user: "0"
-    volumes: ['./certs:/certs', './local_certs/:/out_certs/']
-  copy_out_reqs:
-    container_name: copy_out_reqs
-    build:
-      context: elasticsearch/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    command: >
-      bash -c "
-        yum install rsync;
-        rsync -a --prune-empty-dirs --include '*/' --include '*.csr' --exclude '*' /certs/ /out_certs/
-      "
-    user: "0"
-    volumes: ['./certs:/certs', './local_certs/:/out_certs/']
-  copy_in_certs:
-    container_name: copy_certs
-    build:
-      context: elasticsearch/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    command: >
-      bash -c "
-        yum install rsync;
-        rsync -a --prune-empty-dirs --include '*/' --include '*.crt' --exclude '*' /in_certs/ /certs/
-      "
-    user: "0"
-    volumes: ['./certs:/certs', './local_certs/:/in_certs/']
+    volumes: ['certs:/certs', './local_certs/:/local_certs/', '.:/local/']
 
 
 volumes: {"certs"}
