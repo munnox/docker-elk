@@ -32,6 +32,27 @@ PS > .\filebeat.exe export template --es.version 7.4.0 | Out-File -Encoding UTF8
 PS > Invoke-RestMethod -Method Put -ContentType "application/json" -InFile filebeat.template.json -Uri http://localhost:9200/_template/filebeat-7.4.0
 ```
 
+Adjust the users logstash based on https://www.elastic.co/guide/en/logstash/current/ls-security.html
+
+```
+POST _xpack/security/role/logstash_writer
+{
+  "cluster": ["manage_index_templates", "monitor", "manage_ilm"], 
+  "indices": [
+    {
+      "names": [ "logstash-*" ], 
+      "privileges": ["write","create","delete","create_index","manage","manage_ilm"]  
+    }
+  ]
+}
+POST _xpack/security/user/logstash_internal
+{
+  "password" : "x-pack-test-password",
+  "roles" : [ "logstash_writer"],
+  "full_name" : "Internal Logstash User"
+}
+```
+
 [![Join the chat at https://gitter.im/deviantony/docker-elk](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/deviantony/docker-elk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Elastic Stack version](https://img.shields.io/badge/ELK-7.3.1-blue.svg?style=flat)](https://github.com/deviantony/docker-elk/issues/428)
 [![Build Status](https://api.travis-ci.org/deviantony/docker-elk.svg?branch=master)](https://travis-ci.org/deviantony/docker-elk)
