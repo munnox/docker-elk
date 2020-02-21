@@ -5,7 +5,8 @@
 server.name: kibana
 server.host: "0"
 
-server.maxPayloadBytes: 2040109465 # 2040109465.6 1.9GB 1.9*2**30
+server.maxPayloadBytes: 2040109466
+#$(python -c "print(int(round(1.9*(2**30))))") # 2040109465.6 1.9GB 1.9*2**30
 elasticsearch.hosts: [ "https://esa:9200" ]
 elasticsearch.ssl.certificateAuthorities: [ "/usr/share/kibana/config/certs/ca/ca.crt" ]
 
