@@ -3,13 +3,14 @@
 
 filebeat.config:
   modules:
-    paths: ${path.config}/modules.d/*.yml
-    reload.enabled: false
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: true
 
-filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
+# enable for local docker discovery
+# filebeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
 
 # output.elasticsearch.index: "customname-%{[agent.version]}-%{+yyyy.MM.dd}"
 # setup.template.name: "customname"
@@ -18,6 +19,14 @@ filebeat.autodiscover:
 processors:
   - add_cloud_metadata: ~
 
+# monitoring:
+#   enabled: true
+#   elasticsearch:
+#     # api_key: id:api_key
+#     hosts: ["https://esa:9200"]
+#     username: 'elastic'
+#     password: 'PleaseChangeMe'
+
 # output.elasticsearch:
 #   hosts: ["https://es01:9200"]
 #   username: 'elastic'
@@ -25,16 +34,16 @@ processors:
 #   ssl.certificate_authorities: [ '/certs/ca/ca.crt' ]
 
 output.logstash:
-  hosts: ["esa"]
+  hosts: ["logstash:5044"]
   ssl.certificate_authorities: ["/certs/ca/ca.crt"]
   ssl.certifcate: "/certs/logstash_client/logstash_client.crt"
   ssl.key: "/certs/logstash_client/logstash_client.key"
 
-setup.kibana:
-  host: "https://esa:5601"
-  ssl.enabled: true
-  username: "elastic"
-  password: "PleaseChangeMe"
-  ssl.certificate_authorities: ["/certs/ca/ca.crt"]
+# setup.kibana:
+#   host: "https://esa:5601"
+#   ssl.enabled: true
+#   username: "elastic"
+#   password: "PleaseChangeMe"
+#   ssl.certificate_authorities: ["/certs/ca/ca.crt"]
 
 
