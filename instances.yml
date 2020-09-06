@@ -5,6 +5,7 @@ instances:
       - localhost
     ip:
       - 127.0.0.1
+      - <external_ip>
 
   - name: es02
     dns:
@@ -12,6 +13,7 @@ instances:
       - localhost
     ip:
       - 127.0.0.1
+      - <external_ip>
 
   - name: logstash
     dns:
@@ -19,6 +21,7 @@ instances:
       - localhost
     ip:
       - 127.0.0.1
+      - <external_ip>
 
   - name: kibana
     dns:
@@ -26,3 +29,4 @@ instances:
       - localhost
     ip:
       - 127.0.0.1
+      - <external_ip>

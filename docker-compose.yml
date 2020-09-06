@@ -20,6 +20,12 @@ services:
       - type: volume
         source: data01
         target: /usr/share/elasticsearch/data
+      - type: bind
+        source: ./es01/logs
+        target: /usr/share/elasticsearch/logs
+      - type: bind
+        source: ./backup/
+        target: /backup
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -66,6 +72,12 @@ services:
       - type: volume
         source: data02
         target: /usr/share/elasticsearch/data
+      - type: bind
+        source: ./es02/logs
+        target: /usr/share/elasticsearch/logs
+      - type: bind
+        source: ./backup/
+        target: /backup
     # ports:
     #   - "9200:9200"
     #   - "9300:9300"
